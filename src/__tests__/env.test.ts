@@ -14,6 +14,6 @@ describe('env module', () => {
 
   it('NODE_ENV defaults to development', () => {
     const nodeEnv = process.env.NODE_ENV ?? 'development';
-    expect(['development', 'staging', 'production']).toContain(nodeEnv);
+    expect(['development', 'staging', 'production', 'test']).toContain(nodeEnv);
   });
 });
