@@ -1,0 +1,61 @@
+
+# Scaffolded by Mault — do not commit
+.claude/hooks/
+
+
+# Mault Memory Layer (auto)
+.memory-layer/
+.memory-layer/cache/
+.memory-layer/logs/
+.memory-layer/reports/
+.memory-layer/archive/
+
+# Node.js / TypeScript
+node_modules/
+dist/
+build/
+out/
+coverage/
+.nyc_output/
+*.tsbuildinfo
+.eslintcache
+.cache/
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.tox/
+.ipynb_checkpoints/
+
+# Environment & Secrets (NEVER commit these)
+.env
+.env.*
+*.env
+!.env.example
+credentials.json
+secrets.yaml
+*.pem
+*.key
+*.crt
+
+# Editors & OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Mault working dir (volatile state, not source)
+.mault/
