@@ -53,6 +53,9 @@ jobs:
 
       - name: Test with coverage (TypeScript/Jest)
         run: npx jest --coverage --forceExit
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/testdb
+          OPENAI_API_KEY: sk-test-key
 
       - uses: actions/setup-python@v5
         with:
