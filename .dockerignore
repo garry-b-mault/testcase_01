@@ -1,0 +1,65 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Environment files (NEVER bake secrets)
+.env
+.env.*
+!.env.example
+
+# Dependencies (reinstalled in container)
+node_modules
+__pycache__
+*.pyc
+.venv
+venv
+vendor
+
+# Build artifacts
+dist
+build
+out
+target
+*.egg-info
+
+# Test artifacts
+coverage
+.nyc_output
+.pytest_cache
+htmlcov
+
+# IDE and editor
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation (not needed at runtime)
+docs
+*.md
+!README.md
+
+# Development files
+tests
+test
+spec
+*.test.*
+*.spec.*
+
+# Logs
+*.log
+logs
+
+# Docker (prevent recursive copies)
+Dockerfile*
+docker-compose*
+.docker
+
+# Mault
+.mault
+mault-canary
