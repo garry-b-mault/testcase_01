@@ -64,3 +64,5 @@ jobs:
 
       - name: Test with coverage (Python/pytest)
         run: pytest tests/ --cov=app --cov-report=term-missing -v
+        env:
+          PYTHONPATH: ${{ github.workspace }}
