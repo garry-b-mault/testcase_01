@@ -1,0 +1,10 @@
+{
+  "completedAt": "2026-04-30T04:09:33Z",
+  "jobs": {
+    "cleanup": true,
+    "qualityAssessment": true,
+    "reportCard": true,
+    "ciEscapeHatch": true
+  },
+  "reportCardIssue": "13"
+}
