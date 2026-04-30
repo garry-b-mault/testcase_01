@@ -9,6 +9,8 @@
 .memory-layer/logs/
 .memory-layer/reports/
 .memory-layer/archive/
+!.memory-layer/baselines/
+!.memory-layer/baselines/*.json
 
 # Node.js / TypeScript
 node_modules/
@@ -59,3 +61,5 @@ npm-debug.log*
 
 # Mault working dir (volatile state, not source)
 .mault/
+!.mault/*.proof
+!.mault/pre-commit-manifest.json
