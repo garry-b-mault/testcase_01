@@ -60,6 +60,18 @@ repos:
         exclude: package-lock\.json|\.env$
 
   # =========================================================================
+  # LAYER 6b: DEPENDENCY HEALTH (UC16) — pip-audit
+  # =========================================================================
+  - repo: local
+    hooks:
+      - id: dependency-health-python
+        name: Dependency Health — pip-audit (UC16)
+        entry: bash -c 'pip-audit -r requirements.txt --desc on || echo "⚠ pip-audit found issues — review required"'
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
+  # =========================================================================
   # LAYER 8: GOVERNANCE — Python Quality Ratchets
   # =========================================================================
   - repo: local
