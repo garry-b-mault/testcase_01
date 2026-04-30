@@ -63,3 +63,7 @@ npm-debug.log*
 .mault/
 !.mault/*.proof
 !.mault/pre-commit-manifest.json
+
+# Claude Code local settings (machine/role-specific, not for team)
+.claude/settings.local.json
+.claude/settings.solo-backup.json
