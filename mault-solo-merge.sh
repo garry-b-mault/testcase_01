@@ -1,54 +1,41 @@
 #!/usr/bin/env bash
-# ╔══════════════════════════════════════════════════════════════╗
-# ║  mault-solo-merge.sh — Solo Developer PR Merge Helper       ║
-# ║  Temporarily disables review requirement, merges, restores. ║
-# ╚══════════════════════════════════════════════════════════════╝
 set -euo pipefail
 
-PR_NUMBER="${1:-}"
-if [ -z "$PR_NUMBER" ]; then
-  echo "Usage: ./mault-solo-merge.sh <PR_NUMBER>"
-  exit 1
+# Usage: ./mault-solo-merge.sh <PR_NUMBER>
+# Temporarily lowers branch protection, merges the PR, then restores full protection.
+
+PR_NUMBER="${1:?Usage: ./mault-solo-merge.sh <PR_NUMBER>}"
+
+DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef -q '.defaultBranchRef.name' 2>/dev/null || echo "main")
+REPO_OWNER=$(gh repo view --json owner -q '.owner.login')
+REPO_NAME=$(gh repo view --json name -q '.name')
+
+# Check for plan limitation
+API_RESP=$(gh api "repos/${REPO_OWNER}/${REPO_NAME}/branches/${DEFAULT_BRANCH}/protection" 2>&1) || true
+if echo "$API_RESP" | grep -q "Upgrade to GitHub Pro\|403\|must be upgraded"; then
+  echo "=== Branch protection not available on free plan — merging directly ==="
+  gh pr merge "$PR_NUMBER" --merge --delete-branch
+  echo "=== Done ==="
+  exit 0
 fi
 
-OWNER=$(gh repo view --json owner -q '.owner.login')
-REPO=$(gh repo view --json name -q '.name')
-DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef -q '.defaultBranchRef.name')
+# Capture current required checks
+CURRENT_CHECKS=$(gh api "repos/${REPO_OWNER}/${REPO_NAME}/branches/${DEFAULT_BRANCH}/protection/required_status_checks" \
+  -q '[.contexts[]] | map("\"" + . + "\"") | join(",")' 2>/dev/null) || true
 
-echo "Merging PR #${PR_NUMBER} as solo developer..."
-echo ""
+echo "=== Temporarily lowering protection for merge ==="
+printf '{"required_status_checks":{"strict":true,"contexts":[%s]},"enforce_admins":false,"required_pull_request_reviews":null,"restrictions":null}' \
+  "${CURRENT_CHECKS}" | \
+  gh api "repos/${REPO_OWNER}/${REPO_NAME}/branches/${DEFAULT_BRANCH}/protection" \
+    --method PUT --input - >/dev/null 2>&1
 
-# Step 1: Get current protection settings
-echo "1. Reading current branch protection..."
-CURRENT_CONTEXTS=$(gh api "repos/${OWNER}/${REPO}/branches/${DEFAULT_BRANCH}/protection/required_status_checks" \
-  -q '.contexts | @json' 2>/dev/null || echo '"[]"')
+echo "=== Merging PR #${PR_NUMBER} ==="
+gh pr merge "$PR_NUMBER" --merge --delete-branch
 
-# Step 2: Disable PR review requirement
-echo "2. Temporarily disabling review requirement..."
-echo "{
-  \"required_status_checks\": {\"strict\": true, \"contexts\": ${CURRENT_CONTEXTS}},
-  \"enforce_admins\": true,
-  \"required_pull_request_reviews\": null,
-  \"restrictions\": null
-}" | gh api "repos/${OWNER}/${REPO}/branches/${DEFAULT_BRANCH}/protection" \
-  --method PUT --input - --silent
+echo "=== Restoring full branch protection ==="
+printf '{"required_status_checks":{"strict":true,"contexts":[%s]},"enforce_admins":true,"required_pull_request_reviews":{"required_approving_review_count":1,"dismiss_stale_reviews":true,"require_last_push_approval":true},"restrictions":null}' \
+  "${CURRENT_CHECKS}" | \
+  gh api "repos/${REPO_OWNER}/${REPO_NAME}/branches/${DEFAULT_BRANCH}/protection" \
+    --method PUT --input - >/dev/null 2>&1
 
-# Step 3: Merge the PR
-echo "3. Merging PR #${PR_NUMBER} (squash)..."
-gh pr merge "$PR_NUMBER" --squash --delete-branch
-
-# Step 4: Restore review requirement
-echo "4. Restoring review requirement (1 approval required)..."
-echo "{
-  \"required_status_checks\": {\"strict\": true, \"contexts\": ${CURRENT_CONTEXTS}},
-  \"enforce_admins\": true,
-  \"required_pull_request_reviews\": {
-    \"required_approving_review_count\": 1,
-    \"dismiss_stale_reviews\": true
-  },
-  \"restrictions\": null
-}" | gh api "repos/${OWNER}/${REPO}/branches/${DEFAULT_BRANCH}/protection" \
-  --method PUT --input - --silent
-
-echo ""
-echo "Done. PR #${PR_NUMBER} merged and branch protection restored."
+echo "=== Done. Protection restored. ==="

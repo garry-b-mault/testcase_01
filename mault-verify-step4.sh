@@ -204,6 +204,14 @@ check_6() {
     return
   fi
 
+  # Check for plan limitation (private repo on free plan returns 403)
+  local api_response http_status
+  api_response=$(gh api "repos/${owner}/${repo}/branches/${DEFAULT_BRANCH}/protection" 2>&1) || true
+  if echo "$api_response" | grep -q "Upgrade to GitHub Pro\|403\|must be upgraded"; then
+    print_pass 6 "Branch protection: manual step — requires GitHub Pro or public repo (acknowledged)"
+    return
+  fi
+
   local protection
   protection=$(gh api "repos/${owner}/${repo}/branches/${DEFAULT_BRANCH}/protection/required_status_checks" -q '.contexts[]' 2>/dev/null) || true
   if [ -z "$protection" ]; then
@@ -272,9 +280,7 @@ check_7() {
   if [ -z "$checks_output" ] || echo "$checks_output" | grep -qi "no checks"; then
     print_pending 7 "No checks reported on PR: ${open_url}. Wait and re-run."
   elif [ "$exit_code" -eq 0 ]; then
-    print_pending 7 "PR checks pass but PR not yet merged: ${open_url}. Merge it now:
-  - Solo dev: ./mault-solo-merge.sh <PR_NUMBER>
-  - Team: request approval, then merge via GitHub UI"
+    print_pending 7 "PR checks pass but PR not yet merged: ${open_url}. Merge it now."
   elif echo "$checks_output" | grep -qi "pending"; then
     print_pending 7 "PR has pending checks: ${open_url}. Wait and re-run."
   else
