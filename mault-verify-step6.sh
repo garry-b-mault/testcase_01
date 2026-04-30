@@ -153,7 +153,8 @@ check_5() {
   fi
 
   local output exit_code
-  output=$(pre-commit run --all-files -c .pre-commit-config.yaml 2>&1)
+  # Skip no-commit-to-branch: it's a commit-time guard (branch check), not a lint hook
+  output=$(SKIP=no-commit-to-branch pre-commit run --all-files -c .pre-commit-config.yaml 2>&1)
   exit_code=$?
 
   if [ "$exit_code" -eq 0 ]; then
@@ -161,7 +162,7 @@ check_5() {
   else
     # Auto-fixed files exit 1 but leave files modified — check if re-running passes
     local output2 exit_code2
-    output2=$(pre-commit run --all-files -c .pre-commit-config.yaml 2>&1)
+    output2=$(SKIP=no-commit-to-branch pre-commit run --all-files -c .pre-commit-config.yaml 2>&1)
     exit_code2=$?
     if [ "$exit_code2" -eq 0 ]; then
       print_pass 5 "Python hooks pass (after auto-fix)"
