@@ -342,3 +342,59 @@ Detectors:
       - "**/build/**"
     maxFiles: 500
     timeBudgetMs: 5000
+
+# =============================================================================
+# UC18: STRUCTURAL GOVERNANCE RULES
+# =============================================================================
+
+governance:
+  rules:
+    # TypeScript: No focused tests (.only)
+    - id: "TEST-001"
+      name: "No Focused Tests"
+      severity: "error"
+      files: "**/*.test.ts"
+      assertions:
+        - type: "forbidden_pattern"
+          pattern: "(describe|it|test)\\.only"
+          message: "Remove .only() before committing — focused tests skip the full suite"
+
+    # TypeScript: No console.log in production source
+    - id: "SRC-001"
+      name: "No console.log in production"
+      severity: "error"
+      files: "src/**/*.ts"
+      assertions:
+        - type: "forbidden_pattern"
+          pattern: "console\\.log\\("
+          message: "Use a structured logger instead of console.log in production code"
+
+    # TypeScript: Services must export a default class
+    - id: "SVC-001"
+      name: "Services must export default class"
+      severity: "error"
+      files: "src/services/**/*.ts"
+      assertions:
+        - type: "export_exists"
+          kind: "default"
+          message: "Service files must export a default class"
+
+    # Python: No bare except clauses
+    - id: "PY-001"
+      name: "No bare except"
+      severity: "error"
+      files: "app/**/*.py"
+      assertions:
+        - type: "forbidden_pattern"
+          pattern: "except:"
+          message: "Bare except catches all exceptions including KeyboardInterrupt. Use 'except Exception:' or be specific."
+
+    # Python: No focused pytest tests
+    - id: "PY-TEST-001"
+      name: "No focused Python tests"
+      severity: "error"
+      files: "tests/**/*.py"
+      assertions:
+        - type: "forbidden_pattern"
+          pattern: "@pytest\\.mark\\.only"
+          message: "Remove @pytest.mark.only before committing"
