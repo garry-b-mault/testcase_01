@@ -205,6 +205,14 @@ Detectors:
         expectedDir: "tests"
         reason: "Test files should be in tests/"
 
+      # ===== Python (app/ backend) =====
+      - pattern: "app/**/*_service.py"
+        expectedDir: "app/services"
+        reason: "Backend service files should be in app/services/"
+      - pattern: "app/**/*_router.py"
+        expectedDir: "app/routers"
+        reason: "Router files should be in app/routers/"
+
   # UC03: Naming Convention
   namingConvention:
     enabled: true
