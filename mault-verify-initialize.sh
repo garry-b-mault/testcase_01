@@ -140,7 +140,7 @@ else
 fi
 
 # --- CHECK 9: Handshake commit [mault-initialize] ---
-if git log --oneline -20 2>/dev/null | grep -q "\[mault-initialize\]"; then
+if git log --oneline -20 2>/dev/null | grep "\[mault-initialize\]" > /dev/null; then
   check 9 "Handshake commit [mault-initialize]" "PASS"
 else
   check 9 "Handshake commit [mault-initialize]" "FAIL"
